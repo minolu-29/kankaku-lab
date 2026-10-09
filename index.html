@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>感覚ラボ｜あなたの感覚は何%正確？</title>
+<meta name="description" content="色あわせ・角度・リズム・時間感覚など、感覚の精度を測る10本のミニゲーム。結果は画像でシェアできます。">
+<meta name="theme-color" content="#14121c">
+<meta property="og:type" content="website">
+<meta property="og:title" content="感覚ラボ｜あなたの感覚は何%正確？">
+<meta property="og:description" content="あなたの感覚は何%正確？10種類の感覚テスト。">
+<meta property="og:image" content="https://minolu-29.github.io/kankaku-lab/og.png">
+<meta property="og:url" content="https://minolu-29.github.io/kankaku-lab/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Unbounded:wght@500;700&display=swap">
+<style>/* 感覚ラボ: 夜の実験室。濃い紫がかった黒に、細い線と発光する色。数字は幾何学的な欧文フォント */
+:root{
+  --bg:#14121c; --paper:#1d1a28; --ink:#f2eee6; --muted:#a49fb6; --soft:#262236;
+  --line:#3b3650; --shadow:transparent; --bw:1.5px; --on-gc:#14121c;
+  --accent:#ffb86b; --ok:#5ee0b5; --ng:#ff6b7a;
+  --pat:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1.4px); --pat-size:18px 18px;
+  --f-display:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --r:20px; color-scheme:dark;
+}
+
+/* 共通エンジンの見た目。色・書体・線の太さは各アプリの theme.css が :root で決める */
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0;background-color:var(--bg);background-image:var(--pat);background-size:var(--pat-size);
+  color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-tap-highlight-color:transparent;
+  padding-inline:12px;padding-block:calc(14px + env(safe-area-inset-top,0px)) calc(28px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.2;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+
+/* ホーム */
+.hero{display:flex;flex-direction:column;gap:6px;padding:4px 4px 2px}
+.hero .tag{align-self:flex-start;background:var(--ink);color:var(--paper);font-weight:800;font-size:12px;letter-spacing:.08em;padding:2px 12px;border-radius:999px}
+.hero h1{font-size:clamp(40px,13vw,60px);letter-spacing:.02em}
+.hero h1 span{color:var(--accent)}
+.hero p{color:var(--muted);font-weight:700;font-size:14px}
+.shelf{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:480px){.shelf{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.card{cursor:pointer;text-align:left;background:var(--paper);border:var(--bw) solid var(--line);border-radius:16px;box-shadow:4px 4px 0 var(--shadow);
+  padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0;transition:transform .08s,box-shadow .08s}
+.card:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--shadow)}
+.badge{width:100%;aspect-ratio:1.6;border-radius:11px;border:2px solid var(--line);display:grid;place-items:center;
+  font-family:var(--f-display);font-size:clamp(30px,9vw,44px);color:var(--on-gc);position:relative;overflow:hidden}
+.badge small{position:absolute;top:6px;left:8px;font-family:var(--f-body);font-weight:800;font-size:11px;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:0 7px;line-height:1.6}
+.card b{font-weight:800;font-size:15px;line-height:1.3}
+.card .best{font-size:12px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.foot{font-size:12px;color:var(--muted);text-align:center}
+
+/* プレイ画面 */
+.bar{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.ib{cursor:pointer;background:var(--paper);border:var(--bw) solid var(--line);border-radius:999px;box-shadow:2px 2px 0 var(--shadow);font-weight:800;font-size:14px;padding:5px 12px;white-space:nowrap}
+.bar h2{font-size:20px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud{display:flex;justify-content:space-between;gap:10px;font-weight:800;font-variant-numeric:tabular-nums;padding:0 4px;min-height:1.6em}
+.hud b{font-family:var(--f-display);font-weight:400;font-size:22px;line-height:1}
+#stage-wrap{position:relative;border:var(--bw) solid var(--line);border-radius:var(--r);box-shadow:4px 4px 0 var(--shadow);background:var(--paper);overflow:hidden;flex:1;min-height:0;display:flex;flex-direction:column}
+#stage{position:relative;width:100%;flex:1;min-height:0;touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden}
+#stage canvas{display:block;width:100%;height:100%}
+.shake{animation:shake .28s}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px;
+  background:color-mix(in srgb,var(--paper) 93%,transparent);z-index:5}
+.ov h2{font-size:30px}
+.ov .how{font-weight:700;max-width:30ch;color:var(--muted)}
+.ov .score{font-family:var(--f-display);font-size:clamp(52px,17vw,84px);line-height:1;font-variant-numeric:tabular-nums}
+.ov .rank{font-family:var(--f-display);font-size:22px;color:var(--on-gc);background:var(--gc,#ffcf4a);border:var(--bw) solid var(--line);border-radius:999px;padding:4px 18px;box-shadow:3px 3px 0 var(--shadow)}
+.ov .newbest{font-weight:800;color:var(--paper);background:var(--accent);border-radius:999px;padding:2px 12px;font-size:13px;letter-spacing:.06em}
+.ov .sub{font-weight:700;color:var(--muted);font-size:14px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.btn{cursor:pointer;font-weight:800;font-size:17px;background:var(--gc,#ffcf4a);border:var(--bw) solid var(--line);border-radius:999px;padding:11px 26px;box-shadow:3px 3px 0 var(--shadow);text-decoration:none;color:var(--on-gc);display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.sub{background:var(--paper);color:var(--ink);font-size:15px;padding:9px 18px}
+.btn.dark{background:var(--ink);color:var(--paper)}
+.next{font-size:13px;font-weight:700;color:var(--muted)}
+.next button{cursor:pointer;background:none;border:0;padding:0;font-weight:800;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* シェア */
+.sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.sheet{width:100%;max-width:440px;max-height:92vh;overflow:auto;background:var(--paper);border:var(--bw) solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;margin-bottom:env(safe-area-inset-bottom,0px)}
+.sheet img{width:100%;border:2px solid var(--line);border-radius:12px}
+.sheet .note{font-size:12px;color:var(--muted);text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);font-weight:800;padding:8px 16px;border-radius:999px;z-index:60;font-size:14px}
+
+/* ゲーム内で使う共通パーツ */
+.pop{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);font-family:var(--f-display);font-size:34px;pointer-events:none;white-space:nowrap;
+  color:var(--ink);text-shadow:2px 2px 0 var(--paper),-2px -2px 0 var(--paper),2px -2px 0 var(--paper),-2px 2px 0 var(--paper);animation:pop .7s ease-out forwards;z-index:4}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}100%{opacity:0;transform:translate(-50%,-90%) scale(1)}}
+.grid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(calc(100% - 24px),calc(var(--sh,400px) - 24px));aspect-ratio:1;display:grid;gap:8px}
+.cell{cursor:pointer;border:var(--bw) solid var(--line);border-radius:12px;background:var(--paper);display:grid;place-items:center;
+  font-family:var(--f-display);font-size:clamp(18px,6vw,30px);min-width:0;min-height:0;padding:0;box-shadow:2px 2px 0 var(--shadow);transition:transform .06s,background .12s}
+.cell:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;text-align:center}
+.big{font-family:var(--f-display);font-size:clamp(44px,15vw,72px);line-height:1.05;font-variant-numeric:tabular-nums}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.choice{cursor:pointer;border:var(--bw) solid var(--line);border-radius:16px;box-shadow:3px 3px 0 var(--shadow);background:var(--paper);
+  font-family:var(--f-display);font-size:clamp(22px,7vw,34px);padding:18px 8px;min-width:0}
+.choice:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.hint{font-weight:700;color:var(--muted)}
+
+/* プレイ中は画面いっぱい */
+#play{position:fixed;inset:0;z-index:10;max-width:none;display:flex;flex-direction:column;gap:6px;
+  background-color:var(--bg);background-image:var(--pat);background-size:var(--pat-size);
+  padding:calc(8px + env(safe-area-inset-top,0px)) 10px calc(12px + env(safe-area-inset-bottom,0px))}
+#play>*{width:100%;max-width:640px;margin-inline:auto}
+#play .bar h2{font-size:18px}
+#play .hud{min-height:1.5em}
+body.playing{overflow:hidden;overscroll-behavior:none}
+
+h1,h2,h3,.badge,.ov .score,.ov .rank,.big,.hud b,.choice,.cell{font-weight:900}
+.hero h1{font-size:clamp(40px,12vw,58px);letter-spacing:-.01em}
+.ov .score,.hud b,.big{font-family:"Unbounded","Zen Kaku Gothic New",sans-serif;font-weight:700;letter-spacing:-.02em}
+.card{border-radius:18px}
+.badge{border:none;border-radius:14px;aspect-ratio:1.5}
+.badge small{background:rgba(20,18,28,.85);color:var(--ink);border:none}
+.card:active{transform:scale(.97)}
+.btn,.choice,.cell{box-shadow:none}
+.btn:active,.choice:active,.cell:active{transform:scale(.96)}
+.ov{background:color-mix(in srgb,var(--paper) 94%,transparent)}
+.ov .rank{border:none}
+.ib{box-shadow:none}
+.hero .tag{background:var(--accent);color:var(--on-gc)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section id="hub" class="wrap" style="max-width:none">
+    <header class="hero">
+      <span class="tag">1回1分・感覚の精度テスト</span>
+      <h1>感覚<span>ラボ</span></h1>
+      <p>色、角度、リズム、時間。自分の感覚がどこまで正確か、10種類のテストで確かめよう。</p>
+    </header>
+    <div class="shelf" id="shelf"></div>
+    <p class="foot">記録はこの端末のブラウザにだけ保存されます</p>
+  </section>
+
+  <section id="play" hidden>
+    <div class="bar">
+      <button class="ib" type="button" id="back">‹ ホーム</button>
+      <h2 id="g-title"></h2>
+      <button class="ib" type="button" id="mute" aria-pressed="true">音オン</button>
+    </div>
+    <div class="hud" aria-live="polite"><span id="hud-l"></span><span id="hud-r"></span></div>
+    <div id="stage-wrap">
+      <div id="stage"></div>
+      <div class="ov" id="ov" hidden></div>
+    </div>
+  </section>
+</div>
+
+<script>const BRAND = {
+  name: "感覚ラボ", title: "感覚ラボ｜あなたの感覚は何%正確？", hashtag: "感覚ラボ", slug: "kankaku", prefix: "kl-",
+  fd: '"Zen Kaku Gothic New","Hiragino Sans",sans-serif', fb: '"Zen Kaku Gothic New","Hiragino Sans",sans-serif',
+  c: { bg: "#1d1a28", ink: "#f2eee6", muted: "#a49fb6", line: "#3b3650", accent: "#ffb86b", deep: "#14121c" },
+  card: { bg: "#14121c", dot: "rgba(255,255,255,.06)", panel: "#1d1a28", ink: "#f2eee6", glyphInk: "#14121c", muted: "#a49fb6", foot: "#ffb86b", font: '"Zen Kaku Gothic New","Hiragino Sans",sans-serif' },
+};
+
+/* 共通ゲームエンジン（BRANDで名前・色を差し替え）: ゲーム登録、プレイ画面、スコア保存、結果画像、効果音 */
+const $ = (s, r = document) => r.querySelector(s);
+const GAMES = [];
+const game = def => GAMES.push(def);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(rnd(a, b + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
+
+/* ---------- 効果音 ---------- */
+let AC = null, muted = !!store(BRAND.prefix + "mute");
+function beep(freq = 660, dur = 0.08, type = "sine", vol = 0.12) {
+  if (muted) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === "suspended") AC.resume();
+    const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime;
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + 0.02);
+  } catch (e) {}
+}
+const sfx = {
+  ok: (n = 0) => beep(523 * Math.pow(2, Math.min(n, 24) / 12), 0.09, "triangle"),
+  ng: () => beep(150, 0.18, "square", 0.08),
+  tick: () => beep(900, 0.03, "sine", 0.06),
+  over: () => { beep(330, 0.12, "triangle"); setTimeout(() => beep(220, 0.25, "triangle"), 120); },
+  win: () => [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => beep(f, 0.12, "triangle"), i * 90)),
+};
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+
+function toast(msg) {
+  let t = $(".toast");
+  if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+  t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2000);
+}
+
+/* ---------- ベスト記録 ---------- */
+const bestOf = g => store(BRAND.prefix + "best-" + g.id);
+function saveBest(g, s) {
+  const b = bestOf(g);
+  const better = b === null || (g.lower ? s < b : s > b);
+  if (better) store(BRAND.prefix + "best-" + g.id, s);
+  return better;
+}
+const rankOf = (g, s) => (g.lower ? g.ranks.find(r => s <= r[0]) : g.ranks.find(r => s >= r[0])) || g.ranks[g.ranks.length - 1];
+
+/* ---------- ホーム ---------- */
+function renderHub() {
+  $("#shelf").innerHTML = GAMES.map((g, i) => {
+    const b = bestOf(g);
+    return `<button class="card" type="button" data-g="${g.id}">
+      <span class="badge" style="background:${g.color}"><small>${String(i + 1).padStart(2, "0")}</small>${g.glyph}</span>
+      <b>${esc(g.name)}</b><span class="best">${b === null ? "まだ遊んでない" : "ベスト " + esc(g.fmt(b))}</span></button>`;
+  }).join("");
+}
+$("#shelf").addEventListener("click", e => { const c = e.target.closest("[data-g]"); if (c) go(c.dataset.g); });
+
+/* ---------- プレイ画面 ---------- */
+let cur = null, ctx = null;
+function stageSize() {
+  const st = $("#stage");
+  st.style.setProperty("--sh", (st.clientHeight || 500) + "px");
+}
+function go(id) {
+  const g = GAMES.find(x => x.id === id);
+  if (!g) { home(); return; }
+  cur = g; if (ctx) ctx.kill();
+  try { if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id); } catch (e) {}
+  $("#hub").hidden = true; $("#play").hidden = false; document.body.classList.add("playing");
+  document.documentElement.style.setProperty("--gc", g.color);
+  $("#g-title").textContent = g.name; document.title = g.name + "｜" + BRAND.name;
+  $("#stage").innerHTML = ""; hud("", ""); stageSize();
+  const b = bestOf(g);
+  const ov = $("#ov");
+  ov.innerHTML = `<h2>${esc(g.name)}</h2><p class="how">${g.how}</p>
+    ${b === null ? "" : `<p class="sub">ベスト ${esc(g.fmt(b))}</p>`}
+    <button class="btn" type="button" id="start">スタート</button>`;
+  ov.hidden = false; $("#start").onclick = start; $("#start").focus({ preventScroll: true });
+  window.scrollTo(0, 0);
+}
+function home() {
+  if (ctx) ctx.kill(); ctx = null; cur = null;
+  try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  document.title = BRAND.title;
+  $("#play").hidden = true; $("#hub").hidden = false; document.body.classList.remove("playing"); renderHub();
+}
+function hud(l, r) { $("#hud-l").innerHTML = l; $("#hud-r").innerHTML = r; }
+
+function start() {
+  if (ctx) ctx.kill();
+  const g = cur, stage = $("#stage");
+  stage.innerHTML = ""; $("#ov").hidden = true; stageSize();
+  beep(1, 0.001, "sine", 0.0001); // 音を使えるようにする
+  const subs = [];
+  let alive = true, ended = false;
+  ctx = {
+    stage, W: stage.clientWidth, H: stage.clientHeight, g,
+    on(el, ev, fn, opt) { el.addEventListener(ev, fn, opt); subs.push(() => el.removeEventListener(ev, fn, opt)); },
+    after(ms, fn) { const t = setTimeout(() => alive && fn(), ms); subs.push(() => clearTimeout(t)); return t; },
+    every(ms, fn) { const t = setInterval(() => alive && fn(), ms); subs.push(() => clearInterval(t)); return t; },
+    loop(fn) {
+      let last = performance.now(), id = 0;
+      const step = now => { if (!alive) return; const dt = Math.min(0.05, (now - last) / 1000); last = now; if (fn(dt, now) !== false) id = requestAnimationFrame(step); };
+      id = requestAnimationFrame(step); subs.push(() => cancelAnimationFrame(id));
+    },
+    canvas() {
+      const c = document.createElement("canvas"), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      c.width = Math.round(ctx.W * dpr); c.height = Math.round(ctx.H * dpr);
+      stage.appendChild(c); const x = c.getContext("2d"); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { c, x, W: ctx.W, H: ctx.H };
+    },
+    el(html) { const d = document.createElement("div"); d.innerHTML = html.trim(); const e = d.firstElementChild; stage.appendChild(e); return e; },
+    hud, sfx, buzz,
+    pop(text, color) { const p = document.createElement("div"); p.className = "pop"; p.textContent = text; if (color) p.style.color = color; stage.appendChild(p); setTimeout(() => p.remove(), 750); },
+    shake() { const w = $("#stage-wrap"); w.classList.remove("shake"); void w.offsetWidth; w.classList.add("shake"); buzz(30); },
+    /* 秒数タイマー。penalty(秒)で減らせる。0になったら done() */
+    timer(sec, done) {
+      let left = sec, last = performance.now();
+      const t = { get left() { return left; }, penalty(s) { left = Math.max(0, left - s); }, bonus(s) { left += s; } };
+      ctx.loop(() => { const now = performance.now(); left -= (now - last) / 1000; last = now;
+        if (left <= 0) { left = 0; t.onTick && t.onTick(0); done(); return false; } t.onTick && t.onTick(left); });
+      return t;
+    },
+    end(score) {
+      if (ended) return; ended = true; alive = false; subs.forEach(f => f()); subs.length = 0;
+      setTimeout(() => finish(g, score), 450);
+    },
+    kill() { alive = false; ended = true; subs.forEach(f => f()); subs.length = 0; },
+    get alive() { return alive; },
+  };
+  g.play(ctx);
+}
+
+function finish(g, score) {
+  const isBest = saveBest(g, score);
+  const [, rank] = rankOf(g, score);
+  const b = bestOf(g);
+  isBest ? sfx.win() : sfx.over();
+  const others = GAMES.filter(x => x.id !== g.id), nx = pick(others);
+  const ov = $("#ov");
+  ov.innerHTML = `${isBest ? `<span class="newbest">ベスト更新！</span>` : ""}
+    <div class="score">${esc(g.fmt(score))}</div>
+    <div class="rank">${esc(rank)}</div>
+    <p class="sub">ベスト ${esc(g.fmt(b))}</p>
+    <div class="btns"><button class="btn" type="button" id="again">もう一回</button>
+      <button class="btn sub" type="button" id="share">画像でシェア</button></div>
+    <p class="next">次はこれ → <button type="button" id="nx">${esc(nx.name)}</button></p>`;
+  ov.hidden = false;
+  $("#again").onclick = start; $("#again").focus({ preventScroll: true });
+  $("#share").onclick = () => share(g, score, rank, isBest);
+  $("#nx").onclick = () => go(nx.id);
+}
+
+/* ---------- 結果画像とシェア ---------- */
+const FD = BRAND.fd || '"Dela Gothic One","Hiragino Sans",sans-serif', FB = BRAND.fb || '"M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif';
+function rr(x, X, Y, W, H, R) { x.beginPath(); x.moveTo(X + R, Y); x.arcTo(X + W, Y, X + W, Y + H, R); x.arcTo(X + W, Y + H, X, Y + H, R); x.arcTo(X, Y + H, X, Y, R); x.arcTo(X, Y, X + W, Y, R); x.closePath(); }
+function fit(x, t, maxW, size, fam, w = "") { let s = size; do { x.font = `${w} ${s}px ${fam}`; s -= 2; } while (x.measureText(t).width > maxW && s > 14); }
+async function card(g, score, rank, isBest) {
+  const K = BRAND.card; // {panel, ink, muted, dot, font}
+  const FDc = K.font || FD;
+  try { await Promise.race([Promise.all([document.fonts.load(`40px ${FDc}`, "あ"), document.fonts.load(`800 20px ${FB}`, "あ")]), new Promise(r => setTimeout(r, 2000))]); } catch (e) {}
+  const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d");
+  x.fillStyle = K.bg || g.color; x.fillRect(0, 0, W, H);
+  x.fillStyle = K.dot; for (let yy = 0; yy < H; yy += 48) for (let xx = (yy / 48) % 2 ? 24 : 0; xx < W; xx += 48) { x.beginPath(); x.arc(xx, yy, 4, 0, 7); x.fill(); }
+  if (K.shadow) { rr(x, 106, 166, 900, 1050, 44); x.fillStyle = K.shadow; x.fill(); }
+  rr(x, 90, 150, 900, 1050, 44); x.fillStyle = K.panel; x.fill(); x.lineWidth = 6; x.strokeStyle = K.ink; x.stroke();
+  x.textAlign = "center"; x.textBaseline = "alphabetic";
+  x.fillStyle = K.ink; rr(x, 340, 100, 400, 96, 48); x.fill(); x.fillStyle = K.panel; fit(x, BRAND.name, 340, 50, FDc); x.fillText(BRAND.name, 540, 166);
+  x.fillStyle = K.ink; fit(x, g.name, 780, 80, FDc); x.fillText(g.name, 540, 330);
+  rr(x, 420, 380, 240, 240, 36); x.fillStyle = g.color; x.fill(); x.lineWidth = 6; x.strokeStyle = K.ink; x.stroke();
+  x.fillStyle = K.glyphInk || K.ink; fit(x, g.glyph, 200, 140, FDc); x.fillText(g.glyph, 540, 552);
+  x.fillStyle = K.ink; fit(x, g.fmt(score), 820, 180, FDc); x.fillText(g.fmt(score), 540, 850);
+  rr(x, 230, 900, 620, 130, 65); x.fillStyle = g.color; x.fill(); x.lineWidth = 6; x.stroke();
+  x.fillStyle = K.glyphInk || K.ink; fit(x, rank, 560, 66, FDc); x.fillText(rank, 540, 988);
+  x.fillStyle = K.muted; x.font = `800 38px ${FB}`; x.fillText(isBest ? "ベスト更新！あなたは何点いける？" : "あなたは何点いける？", 540, 1120);
+  x.fillStyle = K.foot || K.ink; x.font = `800 38px ${FB}`; x.fillText("#" + BRAND.hashtag, 540, 1290);
+  return c;
+}
+const pageURL = () => { try { return location.origin + location.pathname + "#" + (cur ? cur.id : ""); } catch (e) { return ""; } };
+async function share(g, score, rank, isBest) {
+  const c = await card(g, score, rank, isBest);
+  const text = `${BRAND.name}「${g.name}」で${g.fmt(score)}！「${rank}」\nあなたは何点いける？ #${BRAND.hashtag}`;
+  const url = pageURL(), full = url.startsWith("http") ? text + "\n" + url : text;
+  const ov = document.createElement("div"); ov.className = "sheet-ov";
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-label="結果をシェア">
+    <img alt="結果画像" src="${c.toDataURL("image/png")}">
+    <p class="note">画像を長押し（パソコンは右クリック）でも保存できるよ</p>
+    <div class="btns"><button class="btn" type="button" data-s>保存・シェア</button>
+      <a class="btn dark" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(full)}">Xでシェア</a></div>
+    <div class="btns"><button class="btn sub" type="button" data-x>とじる</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener("click", e => { if (e.target === ov || e.target.closest("[data-x]")) ov.remove(); });
+  ov.querySelector("[data-s]").onclick = () => c.toBlob(async blob => {
+    if (!blob) return;
+    const file = new File([blob], `${BRAND.slug}-${g.id}.png`, { type: "image/png" });
+    try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: full }); return; } }
+    catch (e) { if (e && e.name === "AbortError") return; }
+    try { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); toast("保存したよ！"); }
+    catch (e) { toast("画像を長押しして保存してね"); }
+  }, "image/png");
+}
+
+/* ---------- 起動 ---------- */
+$("#back").onclick = home;
+const setMute = () => { $("#mute").textContent = muted ? "音オフ" : "音オン"; $("#mute").setAttribute("aria-pressed", String(!muted)); };
+$("#mute").onclick = () => { muted = !muted; store(BRAND.prefix + "mute", muted); setMute(); };
+setMute();
+window.addEventListener("keydown", e => { if (e.key === "Escape" && cur) home(); });
+function boot() {
+  const id = (location.hash || "").slice(1);
+  if (id && GAMES.some(g => g.id === id)) go(id); else home();
+}
+
+/* 感覚ラボ: 10本の感覚テスト */
+const CC = BRAND.c;
+const UFD = '"Unbounded","Zen Kaku Gothic New",sans-serif';
+const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+const pct = s => s.toFixed(1) + "%";
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const localXY = (c, e) => { const r = c.stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+
+/* N回の精度テストをまとめて回す。runRound(i, done) の中で done(精度%) を呼ぶ */
+function rounds(c, N, runRound) {
+  const res = []; let i = 0;
+  const upd = () => c.hud(`<b>${Math.min(i + 1, N)}</b> / ${N} 回`, res.length ? `平均 <b>${avg(res).toFixed(1)}</b>%` : "");
+  const next = () => {
+    upd();
+    runRound(i, a => {
+      a = clamp(a, 0, 100); res.push(a); i++; upd();
+      a >= 95 ? c.sfx.ok(12) : a >= 85 ? c.sfx.ok(5) : c.sfx.ng();
+      if (i >= N) c.after(1300, () => c.end(Math.round(avg(res) * 10) / 10)); else c.after(1300, next);
+    });
+  };
+  next();
+}
+function label(x, t, X, Y, size = 16, col = CC.ink, align = "center", font = BRAND.fb, w = 700) {
+  x.font = `${w} ${size}px ${font}`; x.fillStyle = col; x.textAlign = align; x.textBaseline = "middle"; x.fillText(t, X, Y);
+}
+const ACC_RANKS = (a, b, c2, d, e) => [[a, "神の感覚"], [b, "プロの感覚"], [c2, "かなり正確"], [d, "いい線いってる"], [e, "ふつう"], [0, "感覚派"]];
+
+/* ---------- 01 色あわせ ---------- */
+game({
+  id: "color", name: "色の記憶", glyph: "色", color: "#ff8fc7",
+  how: "2秒だけ表示される色を覚えて、パレットから同じ色をさがそう。5回の平均で勝負。",
+  fmt: pct, ranks: ACC_RANKS(95, 91, 86, 80, 70),
+  play(c) {
+    const { x, W, H } = c.canvas();
+    const padY = H * 0.36, padH = H - padY - 16, padX = 16, padW = W - 32;
+    const pad = document.createElement("canvas"); pad.width = Math.round(padW); pad.height = Math.round(padH);
+    const p = pad.getContext("2d", { willReadFrequently: true });
+    const g1 = p.createLinearGradient(0, 0, padW, 0);
+    for (let h = 0; h <= 360; h += 30) g1.addColorStop(h / 360, `hsl(${h} 85% 55%)`);
+    p.fillStyle = g1; p.fillRect(0, 0, padW, padH);
+    const g2 = p.createLinearGradient(0, 0, 0, padH);
+    g2.addColorStop(0, "rgba(255,255,255,.92)"); g2.addColorStop(.48, "rgba(255,255,255,0)"); g2.addColorStop(.52, "rgba(0,0,0,0)"); g2.addColorStop(1, "rgba(0,0,0,.88)");
+    p.fillStyle = g2; p.fillRect(0, 0, padW, padH);
+    const px = (X, Y) => { const d = p.getImageData(clamp(Math.round(X), 0, pad.width - 1), clamp(Math.round(Y), 0, pad.height - 1), 1, 1).data; return [d[0], d[1], d[2]]; };
+    const css = a => `rgb(${a[0]},${a[1]},${a[2]})`;
+    let phase = "show", target = [0, 0, 0], pick = null, pickXY = null, tXY = null, msg = "", done = null, t0 = 0;
+    const dist = (a, b) => { const r = (a[0] + b[0]) / 2, dr = a[0] - b[0], dg = a[1] - b[1], db = a[2] - b[2]; return Math.sqrt((2 + r / 256) * dr * dr + 4 * dg * dg + (2 + (255 - r) / 256) * db * db); };
+    const btn = c.el(`<button class="btn" type="button" style="position:absolute;right:16px;top:${Math.round(padY - 58)}px" hidden>これだ</button>`);
+    rounds(c, 5, (i, fin) => {
+      tXY = [rnd(padW * .03, padW * .97), rnd(padH * .12, padH * .88)]; target = px(...tXY);
+      phase = "show"; pick = null; pickXY = null; msg = ""; done = fin; t0 = performance.now(); btn.hidden = true;
+      c.after(2000, () => { phase = "pick"; });
+    });
+    const choose = e => {
+      if (phase !== "pick") return; const [X, Y] = localXY(c, e);
+      if (X < padX || X > padX + padW || Y < padY || Y > padY + padH) return;
+      pickXY = [X - padX, Y - padY]; pick = px(...pickXY); btn.hidden = false;
+    };
+    let drag = false;
+    c.on(c.stage, "pointerdown", e => { if (e.target === btn) return; e.preventDefault(); drag = true; choose(e); });
+    c.on(c.stage, "pointermove", e => { if (drag) choose(e); });
+    c.on(window, "pointerup", () => drag = false);
+    c.on(btn, "click", () => {
+      if (phase !== "pick" || !pick) return; phase = "result"; btn.hidden = true;
+      const a = 100 * Math.exp(-dist(pick, target) / 230); msg = a.toFixed(1) + "%"; done(a);
+    });
+    c.loop(() => {
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      const sw = (col, X, w, lbl) => { K_rr(x, X, 16, w, padY - 90, 16); x.fillStyle = col; x.fill(); label(x, lbl, X + 12, 34, 12, "rgba(20,18,28,.75)", "left"); };
+      if (phase === "show") {
+        sw(css(target), 16, W - 32, "この色を覚えて");
+        const left = Math.max(0, 2 - (performance.now() - t0) / 1000);
+        x.fillStyle = CC.line; x.fillRect(16, padY - 64, W - 32, 4); x.fillStyle = CC.accent; x.fillRect(16, padY - 64, (W - 32) * left / 2, 4);
+      } else if (phase === "pick") {
+        if (pick) sw(css(pick), 16, (W - 32) * .62, "あなたの色"); else label(x, "パレットから選んでね", W / 2, padY / 2 - 20, 16, CC.muted);
+      } else {
+        sw(css(target), 16, (W - 40) / 2, "正解"); sw(css(pick), 24 + (W - 40) / 2, (W - 40) / 2, "あなた");
+        label(x, msg, W / 2, padY - 44, 26, CC.ink, "center", UFD);
+      }
+      x.save(); K_rr(x, padX, padY, padW, padH, 14); x.clip();
+      if (phase === "show") { x.fillStyle = CC.deep; x.fillRect(padX, padY, padW, padH); }
+      else x.drawImage(pad, padX, padY, padW, padH);
+      x.restore();
+      if (pickXY && phase !== "show") { x.strokeStyle = "#fff"; x.lineWidth = 3; x.beginPath(); x.arc(padX + pickXY[0], padY + pickXY[1], 11, 0, 7); x.stroke(); x.strokeStyle = "#000"; x.lineWidth = 1.5; x.stroke(); }
+      if (phase === "result") { x.strokeStyle = "#fff"; x.lineWidth = 2; x.setLineDash([4, 4]); x.beginPath(); x.arc(padX + tXY[0], padY + tXY[1], 14, 0, 7); x.stroke(); x.setLineDash([]); }
+    });
+  },
+});
+function K_rr(x, X, Y, W, H, R) { x.beginPath(); x.moveTo(X + R, Y); x.arcTo(X + W, Y, X + W, Y + H, R); x.arcTo(X + W, Y + H, X, Y + H, R); x.arcTo(X, Y + H, X, Y, R); x.arcTo(X, Y, X + W, Y, R); x.closePath(); }
+
+/* ---------- 02 角度ピタリ ---------- */
+game({
+  id: "angle", name: "角度ピタリ", glyph: "°", color: "#7cc6ff",
+  how: "指で線を回して、表示された角度ぴったりで指をはなそう。目盛りはなし。5回の平均。",
+  fmt: pct, ranks: ACC_RANKS(97, 94, 90, 84, 75),
+  play(c) {
+    const { x, W, H } = c.canvas();
+    const cx = W / 2, cy = H * 0.66, R = Math.min(W * 0.42, H * 0.5);
+    let T = 0, a = 0, phase = "aim", done = null, msg = "", drag = false;
+    rounds(c, 5, (i, fin) => { T = ri(5, 175); a = 0; phase = "aim"; msg = ""; done = fin; });
+    const setA = e => { const [X, Y] = localXY(c, e); let ang = Math.atan2(cy - Y, X - cx) * 180 / Math.PI; if (ang < 0) ang = ang < -90 ? 180 : 0; a = clamp(ang, 0, 180); };
+    c.on(c.stage, "pointerdown", e => { e.preventDefault(); if (phase !== "aim") return; drag = true; setA(e); });
+    c.on(c.stage, "pointermove", e => { if (drag) setA(e); });
+    c.on(window, "pointerup", () => { if (!drag) return; drag = false; phase = "result"; const err = Math.abs(a - T); msg = `${a.toFixed(0)}°（ズレ ${err.toFixed(1)}°）`; done(100 - err * 2); });
+    const ray = (deg, col, w, dash) => { const r = deg * Math.PI / 180; x.strokeStyle = col; x.lineWidth = w; x.setLineDash(dash || []); x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + Math.cos(r) * R, cy - Math.sin(r) * R); x.stroke(); x.setLineDash([]); };
+    c.loop(() => {
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      label(x, T + "°", W / 2, H * 0.16, Math.round(W * .2), CC.ink, "center", UFD);
+      x.strokeStyle = CC.line; x.lineWidth = 2; x.beginPath(); x.moveTo(cx - R, cy); x.lineTo(cx + R, cy); x.stroke();
+      ray(0, CC.muted, 3);
+      if (phase === "result") ray(T, "#5ee0b5", 3, [8, 6]);
+      ray(a, "#7cc6ff", 5);
+      x.fillStyle = CC.ink; x.beginPath(); x.arc(cx, cy, 6, 0, 7); x.fill();
+      if (phase === "aim" && !drag) label(x, "画面をなぞって線を回す", W / 2, cy + 40, 15, CC.muted);
+      if (msg) label(x, msg, W / 2, cy + 44, 18, CC.ink);
+    });
+  },
+});
+
+/* ---------- 03 重心タップ ---------- */
+game({
+  id: "center", name: "まんなかタップ", glyph: "芯", color: "#c59bff",
+  how: "いろんな形が出てくるよ。その形の「まんなか（重心）」だと思う場所をタップ。5回の平均。",
+  fmt: pct, ranks: ACC_RANKS(96, 93, 89, 83, 74),
+  play(c) {
+    const { x, W, H } = c.canvas();
+    let pts = [], G = [0, 0], tap = null, phase = "aim", done = null, size = 1;
+    const centroid = P => { let A = 0, X = 0, Y = 0; for (let i = 0; i < P.length; i++) { const [x0, y0] = P[i], [x1, y1] = P[(i + 1) % P.length], f = x0 * y1 - x1 * y0; A += f; X += (x0 + x1) * f; Y += (y0 + y1) * f; } A /= 2; return [X / (6 * A), Y / (6 * A)]; };
+    rounds(c, 5, (i, fin) => {
+      const cx = W / 2 + rnd(-W * .08, W * .08), cy = H * .5 + rnd(-H * .08, H * .08), R = Math.min(W, H) * rnd(.26, .38), rot = rnd(0, 6.28);
+      const kind = pick(["tri", "quad", "blob", "L"]); pts = [];
+      if (kind === "tri") for (let k = 0; k < 3; k++) { const a = rot + k * 2.09 + rnd(-.5, .5); pts.push([cx + Math.cos(a) * R * rnd(.7, 1.1), cy + Math.sin(a) * R * rnd(.7, 1.1)]); }
+      else if (kind === "quad") for (let k = 0; k < 4; k++) { const a = rot + k * 1.57 + rnd(-.35, .35); pts.push([cx + Math.cos(a) * R * rnd(.6, 1.1), cy + Math.sin(a) * R * rnd(.6, 1.1)]); }
+      else if (kind === "blob") for (let k = 0; k < 7; k++) { const a = rot + k * 0.897; pts.push([cx + Math.cos(a) * R * rnd(.55, 1.05), cy + Math.sin(a) * R * rnd(.55, 1.05)]); }
+      else { const s = R * .9, t = s * rnd(.35, .55); const L = [[0, 0], [s, 0], [s, t], [t, t], [t, s * 1.4], [0, s * 1.4]]; const ca = Math.cos(rot), sa = Math.sin(rot); pts = L.map(([u, v]) => [u - s / 2, v - s * .7]).map(([u, v]) => [cx + u * ca - v * sa, cy + u * sa + v * ca]); }
+      G = centroid(pts); size = R; tap = null; phase = "aim"; done = fin;
+    });
+    c.on(c.stage, "pointerdown", e => { e.preventDefault(); if (phase !== "aim") return; tap = localXY(c, e); phase = "result"; const d = Math.hypot(tap[0] - G[0], tap[1] - G[1]); done(100 - d / size * 150); });
+    c.loop(() => {
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(...p) : x.moveTo(...p)); x.closePath();
+      x.fillStyle = "rgba(197,155,255,.85)"; x.fill(); x.strokeStyle = CC.ink; x.lineWidth = 2; x.stroke();
+      if (phase === "result") {
+        x.strokeStyle = "#5ee0b5"; x.lineWidth = 3; x.beginPath(); x.moveTo(G[0] - 10, G[1]); x.lineTo(G[0] + 10, G[1]); x.moveTo(G[0], G[1] - 10); x.lineTo(G[0], G[1] + 10); x.stroke();
+        x.fillStyle = "#ffb86b"; x.beginPath(); x.arc(tap[0], tap[1], 7, 0, 7); x.fill();
+        label(x, "＋が正解の重心", W / 2, H - 28, 14, CC.muted);
+      } else label(x, "重心だと思う場所をタップ", W / 2, H - 28, 14, CC.muted);
+    });
+  },
+});
+
+/* ---------- 04 長さコピー ---------- */
+game({
+  id: "length", name: "長さコピー", glyph: "長", color: "#ffd166",
+  how: "一瞬だけ出る線の長さを覚えて、指でなぞって同じ長さの線を引こう。向きは自由。5回の平均。",
+  fmt: pct, ranks: ACC_RANKS(97, 94, 90, 84, 75),
+  play(c) {
+    const { x, W, H } = c.canvas();
+    let L = 0, ang = 0, phase = "show", a = null, b = null, done = null, msg = "", ref = [0, 0];
+    rounds(c, 5, (i, fin) => {
+      L = rnd(Math.min(W, H) * .2, Math.min(W, H) * .8); ang = rnd(-.6, .6); ref = [W / 2, H * .3]; a = b = null; msg = ""; phase = "show"; done = fin;
+      c.after(1300, () => phase = "draw");
+    });
+    c.on(c.stage, "pointerdown", e => { e.preventDefault(); if (phase !== "draw") return; a = localXY(c, e); b = a; phase = "drawing"; });
+    c.on(c.stage, "pointermove", e => { if (phase === "drawing") b = localXY(c, e); });
+    c.on(window, "pointerup", () => {
+      if (phase !== "drawing") return; phase = "result";
+      const l = Math.hypot(b[0] - a[0], b[1] - a[1]); const err = Math.abs(l - L) / L;
+      msg = `${Math.round(l)} / ${Math.round(L)}`; done(100 - err * 100);
+    });
+    c.loop(() => {
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      const seg = (p, len, an, col, w) => { x.strokeStyle = col; x.lineWidth = w; x.lineCap = "round"; x.beginPath(); x.moveTo(p[0] - Math.cos(an) * len / 2, p[1] - Math.sin(an) * len / 2); x.lineTo(p[0] + Math.cos(an) * len / 2, p[1] + Math.sin(an) * len / 2); x.stroke(); };
+      if (phase === "show") { seg(ref, L, ang, "#ffd166", 6); label(x, "この長さを覚えて", W / 2, H * .55, 15, CC.muted); }
+      if (phase === "draw") label(x, "指でなぞって線を引く", W / 2, H * .5, 15, CC.muted);
+      if (a && b) { x.strokeStyle = "#7cc6ff"; x.lineWidth = 6; x.lineCap = "round"; x.beginPath(); x.moveTo(...a); x.lineTo(...b); x.stroke(); }
+      if (phase === "result") { seg([W / 2, H * .18], L, 0, "#ffd166", 5); label(x, "正解の長さ", W / 2, H * .18 - 20, 13, CC.muted); label(x, msg, W / 2, H - 34, 18, CC.ink, "center", UFD); }
+    });
+  },
+});
+
+/* ---------- 05 テンポキープ ---------- */
+game({
+  id: "tempo", name: "テンポキープ", glyph: "♩", color: "#5ee0b5",
+  how: "4回光るリズムを感じたら、そのまま同じテンポで8回タップを続けよう。途中から何も見えなくなるよ。3回の平均。",
+  fmt: pct, ranks: ACC_RANKS(96, 93, 89, 83, 74),
+  play(c) {
+    const { x, W, H } = c.canvas();
+    let T = 0.5, phase = "listen", taps = [], beat0 = 0, pulse = 0, done = null, msg = "";
+    rounds(c, 3, (i, fin) => {
+      T = 60 / ri(78, 140); taps = []; msg = ""; phase = "listen"; done = fin; beat0 = performance.now() + 500;
+      for (let k = 0; k < 4; k++) c.after(500 + k * T * 1000, () => { pulse = 1; beep(880, 0.06, "sine", .12); });
+      c.after(500 + 3.5 * T * 1000, () => { if (phase === "listen") phase = "tap"; });
+    });
+    c.on(c.stage, "pointerdown", e => {
+      e.preventDefault(); if (phase !== "tap" && phase !== "listen") return;
+      if (phase === "listen") return;
+      taps.push(performance.now()); c.sfx.tick();
+      if (taps.length >= 9) {
+        phase = "result";
+        const iv = taps.slice(1).map((t, k) => (t - taps[k]) / 1000);
+        const e2 = avg(iv.map(v => Math.abs(v - T) / T));
+        const drift = (avg(iv) - T) / T * 100;
+        msg = `BPM ${Math.round(60 / T)} → ${Math.round(60 / avg(iv))}${Math.abs(drift) > 3 ? (drift > 0 ? "（遅れぎみ）" : "（走りぎみ）") : ""}`;
+        done(100 - e2 * 220);
+      }
+    });
+    c.loop(dt => {
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      const cx = W / 2, cy = H * .45, R = Math.min(W, H) * .18;
+      x.strokeStyle = CC.line; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.stroke();
+      if (pulse > 0) { x.fillStyle = `rgba(94,224,181,${pulse})`; x.beginPath(); x.arc(cx, cy, R * (1 + (1 - pulse) * .3), 0, 7); x.fill(); pulse -= dt * 3; }
+      if (phase === "listen") label(x, "リズムを感じて…", cx, cy + R + 40, 16, CC.muted);
+      if (phase === "tap") { label(x, `同じテンポでタップ（${Math.max(0, 9 - taps.length)}）`, cx, cy + R + 40, 16, CC.ink); }
+      if (phase === "result") label(x, msg, cx, cy + R + 40, 16, CC.ink);
+    });
+  },
+});
+
+/* ---------- 06 個数あて ---------- */
+game({
+  id: "count", name: "一瞬の個数", glyph: "数", color: "#ffa45c",
+  how: "一瞬だけ表示される点の数を、バーを動かして答えよう。数えるひまはないよ。5回の平均。",
+  fmt: pct, ranks: ACC_RANKS(95, 90, 85, 78, 68),
+  play(c) {
+    const { x, W, H } = c.canvas();
+    let n = 0, dots = [], phase = "show", guess = 50, done = null, msg = "", drag = false;
+    const barY = H - 110, bx0 = 30, bx1 = W - 30;
+    const btn = c.el(`<button class="btn" type="button" style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%)" hidden>決定</button>`);
+    rounds(c, 5, (i, fin) => {
+      n = ri(8, 90); dots = []; let tries = 0;
+      while (dots.length < n && tries++ < 5000) { const p = [rnd(24, W - 24), rnd(30, barY - 60)]; if (dots.every(d => Math.hypot(d[0] - p[0], d[1] - p[1]) > 15)) dots.push(p); }
+      n = dots.length; guess = 50; msg = ""; phase = "show"; done = fin; btn.hidden = true;
+      c.after(700, () => { phase = "guess"; btn.hidden = false; });
+    });
+    const setG = e => { const [X] = localXY(c, e); guess = Math.round(clamp((X - bx0) / (bx1 - bx0), 0, 1) * 99) + 1; };
+    c.on(c.stage, "pointerdown", e => { if (e.target === btn) return; e.preventDefault(); if (phase !== "guess") return; drag = true; setG(e); });
+    c.on(c.stage, "pointermove", e => { if (drag) setG(e); });
+    c.on(window, "pointerup", () => drag = false);
+    c.on(btn, "click", () => { if (phase !== "guess") return; phase = "result"; btn.hidden = true; msg = `正解 ${n}個 / あなた ${guess}個`; done(100 - Math.abs(guess - n) / n * 100); });
+    c.loop(() => {
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      if (phase === "show" || phase === "result") { x.fillStyle = "#ffa45c"; dots.forEach(d => { x.beginPath(); x.arc(d[0], d[1], 6, 0, 7); x.fill(); }); }
+      if (phase === "guess") label(x, "何個あった？", W / 2, H * .3, 22, CC.ink);
+      if (phase !== "show") {
+        x.fillStyle = CC.line; K_rr(x, bx0, barY - 4, bx1 - bx0, 8, 4); x.fill();
+        const gx = bx0 + (guess - 1) / 99 * (bx1 - bx0);
+        x.fillStyle = "#ffa45c"; x.beginPath(); x.arc(gx, barY, 15, 0, 7); x.fill();
+        label(x, guess + "個", gx, barY - 34, 22, CC.ink, "center", UFD);
+        label(x, "1", bx0, barY + 26, 12, CC.muted); label(x, "100", bx1, barY + 26, 12, CC.muted);
+      }
+      if (msg) label(x, msg, W / 2, H * .12, 17, CC.ink);
+    });
+  },
+});
+
+/* ---------- 07 体内時計 ---------- */
+game({
+  id: "hold", name: "体内時計", glyph: "秒", color: "#6ee7f9",
+  how: "表示された秒数だけ画面を押しつづけて、ぴったりで指をはなそう。時計は見えないよ。5回の平均。",
+  fmt: pct, ranks: ACC_RANKS(97, 94, 90, 84, 75),
+  play(c) {
+    const { x, W, H } = c.canvas();
+    let T = 2, phase = "ready", t0 = 0, held = 0, done = null, msg = "";
+    rounds(c, 5, (i, fin) => { T = Math.round(rnd(1, 6) * 10) / 10; phase = "ready"; msg = ""; done = fin; });
+    c.on(c.stage, "pointerdown", e => { e.preventDefault(); if (phase !== "ready") return; phase = "hold"; t0 = performance.now(); beep(660, .05); });
+    const up = () => { if (phase !== "hold") return; phase = "result"; held = (performance.now() - t0) / 1000; msg = `${held.toFixed(2)}秒`; done(100 - Math.abs(held - T) / T * 100); };
+    c.on(window, "pointerup", up); c.on(window, "pointercancel", up);
+    c.loop(now => {
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      label(x, T.toFixed(1) + "秒", W / 2, H * .22, Math.round(W * .16), CC.ink, "center", UFD);
+      const cx = W / 2, cy = H * .58, R = Math.min(W, H) * .2;
+      x.strokeStyle = CC.line; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.stroke();
+      if (phase === "hold") { const k = .5 + .5 * Math.sin(performance.now() / 180); x.fillStyle = `rgba(110,231,249,${.25 + k * .35})`; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.fill(); label(x, "押してる…", cx, cy, 16, CC.ink); }
+      if (phase === "ready") label(x, "押しつづける", cx, cy, 16, CC.muted);
+      if (phase === "result") label(x, msg, cx, cy, 24, CC.ink, "center", UFD);
+    });
+  },
+});
+
+/* ---------- 08 大小の見きわめ ---------- */
+game({
+  id: "jnd", name: "ちがいの限界", glyph: "差", color: "#ff7a59", lower: true,
+  how: "大きいほうをタップ。正解するたびに差が小さくなるよ。3回まちがえると終わり。どこまで小さな差を見抜ける？",
+  fmt: s => "差" + s.toFixed(1) + "%",
+  ranks: [[1.5, "ミクロの目"], [3, "鋭い目"], [5, "いい目"], [8, "ふつう"], [12, "おおらか"], [999, "ざっくり派"]],
+  play(c) {
+    const { x, W, H } = c.canvas();
+    let d = 20, best = 99, lives = 3, A = null, B = null, big = 0, shape = "c", lock = false;
+    const upd = () => c.hud(`差 <b>${d.toFixed(1)}</b>%`, `ミスあと <b>${lives}</b>`);
+    function next() {
+      const base = Math.min(W, H) * rnd(.13, .18), s2 = base * (1 + d / 100);
+      big = ri(0, 1); shape = pick(["c", "s"]);
+      A = { x: W * .27 + rnd(-15, 15), y: H * .5 + rnd(-H * .15, H * .15), r: big === 0 ? s2 : base };
+      B = { x: W * .73 + rnd(-15, 15), y: H * .5 + rnd(-H * .15, H * .15), r: big === 1 ? s2 : base };
+      lock = false; upd();
+    }
+    c.on(c.stage, "pointerdown", e => {
+      e.preventDefault(); if (lock) return; const [X] = localXY(c, e); const k = X < W / 2 ? 0 : 1; lock = true;
+      if (k === big) { best = Math.min(best, d); c.sfx.ok(Math.round(20 - d)); d = Math.max(0.3, d * 0.78); c.after(250, next); }
+      else { lives--; c.sfx.ng(); c.shake(); d = Math.min(30, d * 1.3); if (lives <= 0) { c.after(500, () => c.end(Math.round((best > 98 ? 30 : best) * 10) / 10)); } else c.after(500, next); }
+    });
+    c.loop(() => {
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      x.strokeStyle = CC.line; x.lineWidth = 1; x.beginPath(); x.moveTo(W / 2, 20); x.lineTo(W / 2, H - 20); x.stroke();
+      [A, B].forEach(o => { if (!o) return; x.fillStyle = "#ff7a59"; x.beginPath(); if (shape === "c") x.arc(o.x, o.y, o.r, 0, 7); else x.rect(o.x - o.r * .9, o.y - o.r * .9, o.r * 1.8, o.r * 1.8); x.fill(); });
+      label(x, "大きいほうをタップ", W / 2, H - 26, 14, CC.muted);
+    });
+    next();
+  },
+});
+
+/* ---------- 09 ついていけ ---------- */
+game({
+  id: "trace", name: "光についていけ", glyph: "追", color: "#b5a8ff",
+  how: "光る玉に指をのせて、離れないように追いかけよう。だんだん速く、動きも読みにくくなるよ。",
+  fmt: s => s.toFixed(1) + "秒",
+  ranks: [[45, "完全シンクロ"], [30, "動体視力の鬼"], [20, "かなりうまい"], [13, "いい感じ"], [7, "ふつう"], [0, "置いていかれた"]],
+  play(c) {
+    const { x, W, H } = c.canvas();
+    const R = Math.min(W, H) * .07;
+    let on = false, started = false, t = 0, finger = null, off = 0, dead = false, trail = [];
+    let px = W / 2, py = H / 2, ph = [rnd(0, 6), rnd(0, 6), rnd(0, 6)];
+    c.on(c.stage, "pointerdown", e => { e.preventDefault(); finger = localXY(c, e); on = true; });
+    c.on(c.stage, "pointermove", e => { if (on) finger = localXY(c, e); });
+    c.on(window, "pointerup", () => { on = false; });
+    c.loop(dt => {
+      const near = finger && on && Math.hypot(finger[0] - px, finger[1] - py) < R * 1.7;
+      if (!started && near) { started = true; c.sfx.ok(3); }
+      if (started && !dead) {
+        t += dt; const sp = 0.5 + t * 0.045;
+        ph[0] += dt * sp * 1.0; ph[1] += dt * sp * 1.37; ph[2] += dt * sp * .53;
+        px = W / 2 + Math.sin(ph[0]) * (W / 2 - R - 10) * .9 + Math.sin(ph[2] * 2.3) * W * .04;
+        py = H / 2 + Math.sin(ph[1]) * (H / 2 - R - 10) * .85 + Math.cos(ph[2] * 1.7) * H * .04;
+        off = near ? 0 : off + dt;
+        if (off > 0.35) { dead = true; c.sfx.ng(); c.shake(); c.after(600, () => c.end(Math.round(t * 10) / 10)); }
+        c.hud(off > 0 ? `<span style="color:#ff6b7a">はなれてる！</span>` : "ついていってる", `<b>${t.toFixed(1)}</b> 秒`);
+      }
+      trail.push([px, py]); if (trail.length > 18) trail.shift();
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      trail.forEach((p, i) => { x.fillStyle = `rgba(181,168,255,${i / trail.length * .35})`; x.beginPath(); x.arc(p[0], p[1], R * i / trail.length, 0, 7); x.fill(); });
+      const gl = x.createRadialGradient(px, py, 0, px, py, R * 1.8); gl.addColorStop(0, "rgba(181,168,255,.9)"); gl.addColorStop(1, "rgba(181,168,255,0)");
+      x.fillStyle = gl; x.beginPath(); x.arc(px, py, R * 1.8, 0, 7); x.fill();
+      x.fillStyle = dead ? "#ff6b7a" : "#ece8ff"; x.beginPath(); x.arc(px, py, R * .7, 0, 7); x.fill();
+      if (!started) label(x, "光に指をのせるとスタート", W / 2, H - 30, 15, CC.muted);
+    });
+  },
+});
+
+/* ---------- 10 リングタップ ---------- */
+game({
+  id: "ring", name: "リングタップ", glyph: "◎", color: "#ff8f6b",
+  how: "外から縮んでくる輪が、まんなかの円に重なった瞬間にタップ！ピッタリほど高得点。40ノーツで勝負。",
+  fmt: s => s + "点",
+  ranks: [[11000, "リズム神"], [9000, "フルコン級"], [7000, "うまい"], [5000, "いい感じ"], [3000, "ふつう"], [0, "リズムは気持ち"]],
+  play(c) {
+    const { x, W, H } = c.canvas();
+    const R = Math.min(W, H) * .085, TOTAL = 40;
+    let notes = [], spawned = 0, score = 0, combo = 0, maxc = 0, nextAt = performance.now() + 800, judge = [], fin = false;
+    const approach = () => Math.max(620, 1100 - spawned * 12);
+    const upd = () => c.hud(`コンボ <b>${combo}</b>`, `<b>${score}</b> 点`);
+    upd();
+    const hitNote = (n, dtms) => {
+      const a = Math.abs(dtms), j = a < 55 ? ["PERFECT", 300, "#ffd166"] : a < 110 ? ["GREAT", 150, "#5ee0b5"] : a < 180 ? ["GOOD", 60, "#7cc6ff"] : null;
+      n.done = true;
+      if (j) { combo++; maxc = Math.max(maxc, combo); score += Math.round(j[1] * (1 + Math.min(combo, 50) / 50)); c.sfx.ok(Math.min(combo, 20)); judge.push({ x: n.x, y: n.y, t: j[0], c: j[2], a: 1 }); }
+      else { combo = 0; c.sfx.ng(); judge.push({ x: n.x, y: n.y, t: "MISS", c: "#ff6b7a", a: 1 }); }
+      upd();
+    };
+    c.on(c.stage, "pointerdown", e => {
+      e.preventDefault(); const [X, Y] = localXY(c, e), now = performance.now();
+      const cand = notes.filter(n => !n.done && Math.hypot(X - n.x, Y - n.y) < R * 1.5).sort((a, b) => a.hit - b.hit)[0];
+      if (cand) { const d = now - cand.hit; if (d > -260) hitNote(cand, d); }
+    });
+    c.loop(dt => {
+      const now = performance.now();
+      if (spawned < TOTAL && now >= nextAt) {
+        const last = notes[notes.length - 1]; let nx, ny, k = 0;
+        do { nx = rnd(R * 1.6, W - R * 1.6); ny = rnd(R * 1.8, H - R * 1.8); k++; } while (last && Math.hypot(nx - last.x, ny - last.y) < R * 2.6 && k < 30);
+        notes.push({ x: nx, y: ny, born: now, hit: now + approach(), done: false, no: spawned + 1 }); spawned++;
+        nextAt = now + Math.max(330, 760 - spawned * 11) * pick([1, 1, 1, .5, 1.5]);
+      }
+      notes.forEach(n => { if (!n.done && now - n.hit > 180) { n.done = true; combo = 0; judge.push({ x: n.x, y: n.y, t: "MISS", c: "#ff6b7a", a: 1 }); upd(); } });
+      notes = notes.filter(n => !n.done || now - n.hit < 200);
+      if (!fin && spawned >= TOTAL && notes.every(n => n.done)) { fin = true; c.after(600, () => c.end(score)); }
+      x.fillStyle = CC.bg; x.fillRect(0, 0, W, H);
+      notes.slice().reverse().forEach(n => {
+        if (n.done) return;
+        const p = clamp((n.hit - now) / (n.hit - n.born), 0, 1);
+        x.strokeStyle = "rgba(255,143,107,.9)"; x.lineWidth = 3; x.beginPath(); x.arc(n.x, n.y, R * (1 + p * 2.2), 0, 7); x.stroke();
+        x.fillStyle = "rgba(255,143,107,.25)"; x.beginPath(); x.arc(n.x, n.y, R, 0, 7); x.fill();
+        x.strokeStyle = CC.ink; x.lineWidth = 3; x.stroke();
+        label(x, n.no, n.x, n.y, Math.round(R * .7), CC.ink, "center", UFD);
+      });
+      judge = judge.filter(j => { j.a -= dt * 1.6; j.y -= dt * 30; if (j.a <= 0) return false; x.globalAlpha = j.a; label(x, j.t, j.x, j.y - R * 1.3, 16, j.c, "center", UFD); x.globalAlpha = 1; return true; });
+      label(x, `${Math.min(spawned, TOTAL)} / ${TOTAL}`, W - 12, 16, 12, CC.muted, "right");
+    });
+  },
+});
+
+boot();
+</script>
+</body>
+</html>
