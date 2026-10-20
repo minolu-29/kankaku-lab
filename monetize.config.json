@@ -1,0 +1,16 @@
+{
+  "name": "kankaku-lab",
+  "title": "感覚ラボ",
+  "siteUrl": "https://minolu-29.github.io/kankaku-lab/",
+  "customDomain": "",
+  "contact": "",
+  "web": {
+    "adsenseClient": "",
+    "adTest": true,
+    "adFrequency": "120s",
+    "ga4": ""
+  },
+  "gamedistribution": {
+    "gameId": ""
+  }
+}

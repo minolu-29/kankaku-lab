@@ -21,13 +21,38 @@
 
 URLの末尾に `#color` などを付けると、そのゲームが直接開きます。
 
+## しくみ（どこを直せば何が変わるか）
+
+ゲーム本体は `src/index.html` の1ファイルだけです。ここを直して main に入れると、GitHub が自動で次の3つを作り直します。
+
+| 作られるもの | 置き場所 | 使い道 |
+|---|---|---|
+| 自分のサイト版 | GitHub Pages（公開URL） | 広告（Google）とアクセス解析つき |
+| `kankaku-lab-crazygames.zip` | Releases の「latest」 | CrazyGames にアップロード |
+| `kankaku-lab-gamedistribution.zip` | Releases の「latest」 | GameDistribution にアップロード |
+
+広告やアクセス解析のIDは `monetize.config.json` に書きます。空のあいだは広告なしで動きます。
+
+| 項目 | 入れるもの |
+|---|---|
+| `web.adsenseClient` | AdSense のサイト運営者ID（`ca-pub-` で始まる） |
+| `web.adTest` | 審査中・確認中は `true`（テスト広告）。本番は `false` |
+| `web.ga4` | Google アナリティクスの測定ID（`G-` で始まる） |
+| `gamedistribution.gameId` | GameDistribution でゲームを登録したときにもらうID |
+| `customDomain` / `siteUrl` | 独自ドメインを使うときに設定 |
+
+画面の文字は、ブラウザが日本語なら日本語、それ以外は英語で出ます。ホーム画面の下のボタンで切り替えられ、URLに `?lang=en` を付けても英語になります。
+
 ## ファイル
 
 | ファイル | 役割 |
 |---|---|
-| `index.html` | ゲーム本体（HTML・CSS・JSを1ファイルに収録） |
-| `og.png` | SNSでリンクを貼ったときのプレビュー画像 |
-| `icon.svg` / `icon-*.png` | タブとホーム画面のアイコン |
-| `manifest.webmanifest` | スマホの「ホーム画面に追加」用 |
+| `src/index.html` | ゲーム本体（HTML・CSS・JSを1ファイルに収録） |
+| `src/platforms/` | 配信先ごとの違い（広告の出し方・記録の保存先）だけをまとめたファイル |
+| `tools/build.mjs` | 配信先ごとの版を `dist/` に作るスクリプト（`node tools/build.mjs`） |
+| `monetize.config.json` | 広告・解析・配信先のID |
+| `public/` | アイコン・SNS用プレビュー画像など、サイトにそのまま置くファイル |
+| `store/` | ゲームサイトに提出するカバー画像 |
+| `.github/workflows/publish.yml` | 自動で作り直して公開する設定 |
 
-ベスト記録と音のオン・オフは、その端末のブラウザにだけ保存されます。
+ベスト記録と音のオン・オフは、その端末のブラウザ（CrazyGamesではアカウント）に保存されます。
