@@ -1,0 +1,6 @@
+{
+  "framework": null,
+  "buildCommand": "WEB_ONLY=1 node tools/build.mjs",
+  "outputDirectory": "dist/web",
+  "installCommand": ""
+}

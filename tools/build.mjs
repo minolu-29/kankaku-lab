@@ -2,7 +2,7 @@
 //   dist/web/                 … 自分のサイト（GitHub Pages）。広告・アクセス解析は monetize.config.json で設定
 //   dist/<名前>-crazygames.zip … CrazyGames にアップロードする版
 //   dist/<名前>-gamedistribution.zip … GameDistribution にアップロードする版
-// 使い方: node tools/build.mjs
+// 使い方: node tools/build.mjs（WEB_ONLY=1 を付けると自分のサイト版だけ作る。Vercel用）
 import fs from "fs";
 import path from "path";
 import { execFileSync } from "child_process";
@@ -51,6 +51,7 @@ fs.mkdirSync(DIST, { recursive: true });
 }
 
 /* ---------- ゲームサイト向けの版 ---------- */
+const webOnly = !!process.env.WEB_ONLY;
 function portal(id, tags, note) {
   const dir = path.join(DIST, id);
   fs.mkdirSync(dir, { recursive: true });
@@ -59,12 +60,12 @@ function portal(id, tags, note) {
   execFileSync("zip", ["-q", "-X", "-r", zip, "."], { cwd: dir });
   console.log(id.padEnd(15), "→", path.relative(ROOT, zip), note || "");
 }
-portal("crazygames", [
+if (!webOnly) portal("crazygames", [
   `<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>`,
   `<script>\n${platform("crazygames")}</script>`,
 ]);
 const gdId = (cfg.gamedistribution || {}).gameId || "";
-portal("gamedistribution", [
+if (!webOnly) portal("gamedistribution", [
   `<script>window.MONETIZE = ${json({ gdGameId: gdId })};</script>`,
   `<script>\n${platform("gamedistribution")}</script>`,
 ], gdId ? "" : "(gameId が空: GameDistribution で登録したあと monetize.config.json に入れてください)");
